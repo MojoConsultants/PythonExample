@@ -1,100 +1,71 @@
 # =============================================================================
 # FILE: Makefile
-# PURPOSE: Provide unified developer shortcuts for running, testing, and packaging the MCP Site Scanner.
+# PURPOSE: Master command set for building, testing, and deploying the MCP Site Scanner
 # -----------------------------------------------------------------------------
 # 📖 DEVELOPER NOTES — READ LIKE SCRIPTURE
-# 1. Each target declares its mission clearly.
-# 2. `make` is the commandment of convenience — no long scripts, just clarity.
-# 3. Outputs and reports are sacred; they must always persist under ./reports/.
+# 1. Each target is a covenant: clear, intentional, and observable.
+# 2. Every run must speak aloud — no silent builds, no hidden logs.
+# 3. Every report must live within ./reports/, the temple of truth.
 # =============================================================================
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  VARIABLE DECLARATIONS — Each name reveals its duty
+#  VARIABLE DECLARATIONS — Names reveal purpose
 # ─────────────────────────────────────────────────────────────────────────────
-APP = mcp_site_scanner.py           # The core scanner engine
-RUNNER = ./run-scan.sh              # The unified script for all modes
-VENV = .venv                        # Python virtual environment
-REPORT_DIR = reports                # Where all reports dwell
-IMAGE_NAME = mcp-scanner            # Docker image name
-CONTAINER_NAME = mcp-scanner        # Docker container name
-TARGET = https://wwsad.b12sites.com/index  # Default scan target
+APP             = mcp_site_scanner.py
+RUNNER          = ./run-scan.sh
+DOCKER_TEST_RUN = ./run-docker-tests.sh
+VENV            = .venv
+REPORT_DIR      = reports
+TEST_REPORT_DIR = $(REPORT_DIR)/tests
+IMAGE_NAME      = mcp-scanner
+CONTAINER_NAME  = mcp-scanner
+TARGET          = https://wwsad.b12sites.com/index
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  ENVIRONMENT — Ensure virtual environment exists before running anything
+#  ENVIRONMENT SETUP — Sanctify the virtual environment before all else
 # ─────────────────────────────────────────────────────────────────────────────
 $(VENV)/bin/activate:
-	@echo "🔧 Creating virtual environment..."
+	@echo "🔧 Preparing Python virtual environment..."
 	@python3 -m venv $(VENV)
 	@$(VENV)/bin/pip install -r requirements.txt
+	@echo "📦 Environment ready. Dependencies installed."
+	@echo "📂 Reports directory: $(REPORT_DIR)"
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: api — Start the Flask API server for MCP integration
+#  TARGET: api — Launch the Flask API server for MCP
 # ─────────────────────────────────────────────────────────────────────────────
 api: $(VENV)/bin/activate
-	@echo "🚀 Launching API mode..."
+	@echo "🚀 Launching API server..."
 	@bash $(RUNNER) api
+	@echo "📂 Reports directory: $(REPORT_DIR)"
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: cli — Run interactive CLI scan (prints progress live)
+#  TARGET: cli — Run an interactive CLI scan
 # ─────────────────────────────────────────────────────────────────────────────
 cli: $(VENV)/bin/activate
-	@echo "🔍 Running CLI scan on $(TARGET)"
+	@echo "🔍 Executing interactive CLI scan on $(TARGET)..."
 	@bash $(RUNNER) cli $(TARGET)
+	@echo "✅ CLI scan complete."
+	@echo "📂 Reports directory: $(REPORT_DIR)"
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: once — Run a single scan and exit (non-interactive)
+#  TARGET: once — Perform a single scan and exit (non-interactive)
 # ─────────────────────────────────────────────────────────────────────────────
 once: $(VENV)/bin/activate
-	@echo "⚡ Executing one-off scan on $(TARGET)"
+	@echo "⚡ Running one-off scan for $(TARGET)..."
 	@bash $(RUNNER) once $(TARGET)
+	@echo "✅ One-off scan complete."
+	@echo "📂 Reports directory: $(REPORT_DIR)"
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: test — Execute cucumber and unit tests
+#  TARGET: test — Run cucumber + unit tests locally
 # ─────────────────────────────────────────────────────────────────────────────
 test: $(VENV)/bin/activate
-	@echo "🧪 Running full test suite..."
+	@echo "🧪 Running local test suite..."
 	@bash $(RUNNER) test
+	@echo "✅ Local tests executed."
+	@echo "📂 Test reports located at: $(TEST_REPORT_DIR)"
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: docker-build — Build the scanner Docker image
-# ─────────────────────────────────────────────────────────────────────────────
-docker-build:
-	@echo "🐳 Building Docker image: $(IMAGE_NAME)"
-	@docker build -t $(IMAGE_NAME) .
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: docker-run — Run containerized scanner with persistent reports
-# ─────────────────────────────────────────────────────────────────────────────
-docker-run:
-	@echo "🚀 Running container $(CONTAINER_NAME) with volume-mounted reports..."
-	@docker run --rm -it \
-		-p 8020:8020 \
-		-v $(PWD)/$(REPORT_DIR):/app/reports \
-		--name $(CONTAINER_NAME) \
-		$(IMAGE_NAME)
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: clean — Purge build artifacts, logs, and temporary files
-# ─────────────────────────────────────────────────────────────────────────────
-clean:
-	@echo "🧹 Purging logs, cache, and temp files..."
-	@rm -rf $(VENV) $(REPORT_DIR) logs __pycache__
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  TARGET: help — Summarize all make targets
-# ─────────────────────────────────────────────────────────────────────────────
-help:
-	@echo ""
-	@echo "🧭 MAKE COMMANDS (MCP Site Scanner)"
-	@echo "-----------------------------------"
-	@echo " make api          → Launch API server (Flask)"
-	@echo " make cli          → Run interactive CLI scan"
-	@echo " make once         → Run one-off scan (auto-report)"
-	@echo " make test         → Run cucumber + unit tests"
-	@echo " make docker-build → Build Docker image"
-	@echo " make docker-run   → Run container with reports volume"
-	@echo " make clean        → Purge venv, logs, and temp files"
-	@echo ""
-# =============================================================================
-#  END OF MAKEFILE
-# =============================================================================
+#  TARGET: docker-build — Build Docker image
+# ───────────────────────────────────────
