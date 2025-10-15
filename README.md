@@ -31,3 +31,34 @@ It’s designed for DevOps pipelines, pentesters, and QA engineers needing quick
 
 ## 🧩 Project Structure
 
+Running The Scanner  API 
+./run-scan.sh api
+
+CLI Scan 
+./run-scan.sh cli https://wwsad.b12sites.com/index
+
+One -off Scan 
+./run-scan.sh once https://wwsad.b12sites.com/index
+
+Run Tests 
+./run-scan.sh test
+
+##DOCKER DEPLOYMENT
+
+docker build -t mcp-scanner .
+docker run -p 8020:8020 mcp-scanner
+Testing Strategy
+
+Cucumber (behave) for behavior-driven acceptance tests
+
+Pytest for unit and functional verification
+
+# =============================================================================
+# FILE: <filename>
+# PURPOSE: <what this file is for>
+# -----------------------------------------------------------------------------
+# 📖 DEVELOPER NOTES — READ LIKE SCRIPTURE
+# 1. Each section states its reason for being.
+# 2. Variables declare purpose clearly.
+# 3. The flow must be obvious to future maintainers.
+# =============================================================================
